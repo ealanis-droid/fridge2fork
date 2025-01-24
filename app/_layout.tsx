@@ -1,39 +1,46 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { Stack } from "expo-router";
+import { IngredientsProvider } from "./context/IngredientsContext";
+import { DietaryProvider } from "./context/DietaryContext";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
+/**
+ * RootLayout Component
+ *
+ * This is the root layout component that defines the main navigation structure
+ * and provides context providers for the entire app.
+ *
+ * Navigation Groups:
+ * - (tabs): Main tab navigation (home, pantry, recipes, profile)
+ * - (recipe): Recipe detail screens
+ * - (settings): Settings-related screens (dietary preferences)
+ * - auth: Authentication screens (login)
+ *
+ * Context Providers:
+ * - DietaryProvider: Manages dietary preferences and excluded ingredients
+ * - IngredientsProvider: Manages pantry and active ingredients
+ */
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <DietaryProvider>
+      <IngredientsProvider>
+        <Stack>
+          {/* Main tab navigation */}
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
+          {/* Recipe detail screens */}
+          <Stack.Screen
+            name="(recipe)"
+            options={{
+              headerShown: false,
+            }}
+          />
+
+          {/* Settings screens */}
+          <Stack.Screen name="(settings)" options={{ headerShown: false }} />
+
+          {/* Authentication screens */}
+          <Stack.Screen name="auth/login" options={{ headerShown: false }} />
+        </Stack>
+      </IngredientsProvider>
+    </DietaryProvider>
   );
 }
